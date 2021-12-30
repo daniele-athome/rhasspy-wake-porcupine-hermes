@@ -25,6 +25,11 @@ def main():
     """Main method."""
     parser = argparse.ArgumentParser(prog="rhasspy-wake-porcupine-hermes")
     parser.add_argument(
+        "--access-key",
+        required=True,
+        help="Picovoice access key",
+    )
+    parser.add_argument(
         "--keyword",
         required=True,
         action="append",
@@ -36,6 +41,7 @@ def main():
         default=[],
         help="Path to directory with keyword files",
     )
+    parser.add_argument("--model", help="Path to Porcupine model (.pv)")
     parser.add_argument(
         "--wakeword-id",
         action="append",
@@ -69,7 +75,6 @@ def main():
 
     # --- DEPRECATED (using pvporcupine now) ---
     parser.add_argument("--library", help="Path to Porcupine shared library (.so)")
-    parser.add_argument("--model", help="Path to Porcupine model (.pv)")
     # --- DEPRECATED (using pvporcupine now) ---
 
     hermes_cli.add_hermes_args(parser)
@@ -164,6 +169,7 @@ def main():
     client = mqtt.Client()
     hermes = WakeHermesMqtt(
         client,
+        args.access_key,
         args.keyword,
         keyword_names,
         sensitivities,
@@ -173,6 +179,7 @@ def main():
         udp_forward_mqtt=args.udp_forward_mqtt,
         site_ids=args.site_id,
         lang=args.lang,
+        model_path=args.model,
     )
 
     _LOGGER.debug("Connecting to %s:%s", args.host, args.port)

@@ -72,6 +72,7 @@ class WakeHermesMqtt(HermesClient):
     def __init__(
         self,
         client,
+        access_key: str,
         model_ids: typing.List[str],
         wakeword_ids: typing.List[str],
         sensitivities: typing.List[float],
@@ -85,6 +86,7 @@ class WakeHermesMqtt(HermesClient):
         udp_raw_audio: typing.Optional[typing.Iterable[str]] = None,
         udp_forward_mqtt: typing.Optional[typing.Iterable[str]] = None,
         lang: typing.Optional[str] = None,
+        model_path: typing.Optional[str] = None,
     ):
         super().__init__(
             "rhasspywake_porcupine_hermes",
@@ -97,11 +99,13 @@ class WakeHermesMqtt(HermesClient):
 
         self.subscribe(AudioFrame, HotwordToggleOn, HotwordToggleOff, GetHotwords)
 
+        self.access_key = access_key
         self.wakeword_ids = wakeword_ids
         self.model_ids = model_ids
         self.sensitivities = sensitivities
 
         self.keyword_dirs = keyword_dirs or []
+        self.model_path = model_path
 
         # Required audio format
         self.sample_rate = sample_rate
@@ -252,6 +256,8 @@ class WakeHermesMqtt(HermesClient):
                 site_info.porcupine = pvporcupine.create(
                     keyword_paths=[str(kw) for kw in self.model_ids],
                     sensitivities=self.sensitivities,
+                    model_path=self.model_path,
+                    access_key=self.access_key,
                 )
 
             assert site_info.porcupine is not None
